@@ -1,0 +1,12 @@
+{
+  "name": "@dreierschub/protocol",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@dreierschub/core": "0.1.0",
+    "zod": "^4.1.0"
+  }
+}

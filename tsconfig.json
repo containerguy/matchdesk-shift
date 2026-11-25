@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/core" },
+    { "path": "packages/protocol" },
+    { "path": "apps/server" },
+    { "path": "games/shift" },
+    { "path": "apps/client" }
+  ]
+}
