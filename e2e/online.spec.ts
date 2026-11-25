@@ -96,12 +96,23 @@ test("Online-Partie bis zum Ende und Revanche", async ({ browser }) => {
   expect(await boardKinds(b.page)).toBe(await boardKinds(a.page));
   expect(await gameLog(b.page).allInnerTexts()).toEqual(await gameLog(a.page).allInnerTexts());
   await expect(gameLog(a.page).last()).toContainText("gewinnt");
+  // Abschluss über dem Spielfeld: der Sieger bekommt Konfetti und „Gewonnen!“, der Verlierer einen ruhigen Hinweis
+  await expect(a.page.locator(".celebration")).toHaveCount(1);
+  await expect(b.page.locator(".celebration")).toHaveCount(1);
+  const results = [await a.page.locator(".celebration").getAttribute("data-result"), await b.page.locator(".celebration").getAttribute("data-result")];
+  expect(results.sort()).toEqual(["lost", "won"]);
+  for (const p of [a.page, b.page]) {
+    const won = (await p.locator(".celebration").getAttribute("data-result")) === "won";
+    await expect(p.locator(".celebration-banner strong")).toHaveText(won ? "Gewonnen!" : "Verloren");
+    await expect(p.locator(".celebration .confetti i")).toHaveCount(won ? 70 : 0);
+  }
 
   // Revanche: erst wenn beide wollen, beginnt die nächste Partie bei 0 : 0
   await a.page.getByRole("button", { name: "Revanche" }).click();
   await expect(b.page.getByRole("button", { name: "Revanche annehmen" })).toBeVisible();
   await b.page.getByRole("button", { name: "Revanche annehmen" }).click();
   await expect(a.page.locator(".badge", { hasText: /Gewonnen|Verloren/ })).toHaveCount(0);
+  await expect(a.page.locator(".celebration")).toHaveCount(0);
   await expect.poll(() => moveCount(a.page)).toBe(0);
   expect(await points(a.page, 0)).toBe(0);
   expect(await points(b.page, 1)).toBe(0);
