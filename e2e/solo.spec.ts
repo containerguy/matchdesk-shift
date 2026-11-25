@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { gameLog, hint, moveCount, newPlayer, pushOnce, seeded, waitForTurn } from "./helpers";
+import { cellCenter, gameLog, hint, moveCount, newPlayer, pushOnce, seeded, touchDrag, waitForTurn } from "./helpers";
 
 test("Solo-Partie gegen den Computer bis zum Ende", async ({ browser }) => {
   const { page, errors } = await newPlayer(browser);
@@ -32,12 +32,17 @@ test("Am Smartphone gegen den Computer, danach zu zweit an einem Gerät", async 
   await page.getByRole("button", { name: "Allein gegen den Computer spielen" }).click();
   await page.getByRole("group", { name: "Gegner wählen" }).getByRole("button", { name: "Leicht" }).click();
 
-  // Antippen zeigt erst die Vorschau, erst die Bestätigung schiebt
+  // Stein mit dem Finger an den unteren Rand von Spalte E ziehen: Loslassen zeigt nur die Vorschau
   await waitForTurn(page);
-  await page.locator('.arrow[data-move="bottom-4"]').tap();
+  const corner = await cellCenter(page, 4, 4);
+  await touchDrag(page, await cellCenter(page, 2, 2), { x: corner.x - 8, y: corner.y + 12 });
+  await expect(page.locator('.arrow[data-move="bottom-4"]')).toHaveClass(/active/);
   await expect(page.locator(".cell.hover")).toHaveCount(5);
+  await expect(page.getByTestId("carrier")).toHaveClass(/\bon\b/);
+  await expect(page.getByRole("button", { name: "Spalte E von unten schieben" })).toBeVisible();
   expect(await moveCount(page)).toBe(0);
-  await page.getByRole("button", { name: "Spalte E von unten schieben" }).tap();
+  // Dieselbe Stelle noch einmal antippen schiebt
+  await page.locator('.arrow[data-move="bottom-4"]').tap();
 
   // Der Computer antwortet sichtbar: erst Vorschau, dann sein Zug
   await expect(page.locator(".arrow.active")).toHaveCount(1, { timeout: 10_000 });

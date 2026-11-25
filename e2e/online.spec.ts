@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { boardKinds, enterLobby, gameLog, hint, moveCount, newPlayer, points, pushOnce, seeded, settled, waitForTurn } from "./helpers";
+import { boardKinds, cellCenter, enterLobby, gameLog, hint, moveCount, newPlayer, points, pushOnce, seeded, settled, waitForTurn } from "./helpers";
 
 test("Online-Partie zwischen Desktop und Smartphone: Einladung, Vorschau, Züge, Sperre, Chat, Aufgabe", async ({ browser }) => {
   const rene = await newPlayer(browser);
@@ -18,21 +18,35 @@ test("Online-Partie zwischen Desktop und Smartphone: Einladung, Vorschau, Züge,
   // Wer nicht dran ist, kann nicht schieben
   await expect(mia.page.locator(".arrow:not([disabled])")).toHaveCount(0);
 
-  // René zeigt mit der Maus auf einen Pfeil: Mia sieht die Vorschau auf derselben Reihe
+  // Der nächste Stein hängt an Renés Maus: im Feld nahe am linken Rand von Reihe 3 rastet er dort ein.
+  // Mia sieht die Vorschau auf derselben Reihe, samt Stein.
   await waitForTurn(rene.page);
-  await rene.page.locator('.arrow[data-move="left-2"]').hover();
+  const nearLeft = await cellCenter(rene.page, 2, 0);
+  await rene.page.mouse.move(nearLeft.x, nearLeft.y, { steps: 4 });
+  await expect(rene.page.locator('.arrow[data-move="left-2"]')).toHaveClass(/active/);
+  await expect(rene.page.getByTestId("carrier")).toHaveClass(/\bon\b/);
   await expect(mia.page.locator('.arrow[data-move="left-2"]')).toHaveClass(/active/);
   await expect(mia.page.locator(".cell.hover")).toHaveCount(5);
+  await expect(mia.page.getByTestId("carrier")).toHaveClass(/\bon\b.*theirs|theirs.*\bon\b/);
 
-  // René schiebt Reihe 3 von links; beide sehen danach dasselbe Feld
-  await pushOnce(rene.page, { pick: "left-2" });
+  // Weiter nach oben gezogen rastet er in Spalte B oben ein, zurück an Reihe 3 links
+  const nearTop = await cellCenter(rene.page, 0, 1);
+  await rene.page.mouse.move(nearTop.x, nearTop.y - 10, { steps: 4 });
+  await expect(rene.page.locator('.arrow[data-move="top-1"]')).toHaveClass(/active/);
+  await rene.page.mouse.move(nearLeft.x, nearLeft.y, { steps: 4 });
+  await expect(mia.page.locator('.arrow[data-move="left-2"]')).toHaveClass(/active/);
+
+  // Klick schiebt Reihe 3 von links, egal wo im Feld; beide sehen danach dasselbe Feld
+  await rene.page.mouse.click(nearLeft.x, nearLeft.y);
+  await settled(rene.page, 0);
   await settled(mia.page, 0);
+  await expect(gameLog(mia.page).filter({ hasText: "René: Reihe 3 von links" })).toHaveCount(1);
   expect(await boardKinds(mia.page)).toBe(await boardKinds(rene.page));
   expect(await points(mia.page, 0)).toBe(await points(rene.page, 0));
 
   // Mia ist dran. Direktes Zurückschieben ist gesperrt, sie schiebt per Touch woanders
   await waitForTurn(mia.page);
-  await expect(mia.page.locator('.arrow[data-move="right-2"]')).toBeDisabled();
+  await expect(mia.page.locator('.arrow[data-move="right-2"]')).toHaveAttribute("aria-disabled", "true");
   await pushOnce(mia.page, { pick: "top-0", touch: true });
   await settled(rene.page, 1);
   expect(await boardKinds(mia.page)).toBe(await boardKinds(rene.page));
