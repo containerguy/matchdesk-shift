@@ -6,7 +6,7 @@ Dieses Repository enthält nur Dreierschub. Jedes Spiel hat ein eigenes Reposito
 
 ## Regeln
 
-- Feld 5 × 5 mit sechs Steinformen: Kreis 1, Dreieck 2, Quadrat 3, Raute 4, Sechseck 5, Stern 6 Punkte.
+- Feld 5 × 5 mit sechs Symbolen: Zitrone 1, Kirschen 2, Trauben 3, Melone 4, Glocke 5, Edelstein 6 Punkte.
 - Wer am Zug ist, schiebt den angezeigten **nächsten Stein** von einer der vier Seiten in eine Reihe oder Spalte. Am anderen Ende fällt ein Stein heraus. Der Stein danach ist als Vorschau zu sehen.
 - Drei oder mehr gleiche Steine in einer Linie verschwinden und bringen dem Schiebenden Punkte: 3 gleiche = Wert × 3, 4 = Wert × 5, 5 = Wert × 8. Die Lücken füllen sich zufällig neu auf; entsteht dabei wieder eine Linie, zählt sie als Kette doppelt, dreifach usw.
 - Den letzten Schub des Gegners direkt zurückzuschieben (gleiche Linie, Gegenseite) ist nicht erlaubt.

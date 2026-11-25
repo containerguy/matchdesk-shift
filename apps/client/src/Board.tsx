@@ -2,54 +2,100 @@ import { isReverseOf, KINDS, kindValue, lineCells, SIZE, type Kind, type ShiftMo
 import { useRef, useSyncExternalStore, type ReactNode } from "react";
 import { moveText, type TableController } from "./controller";
 
-/** Farben der Steine; eigene Palette im Matchdesk-Stil, gut unterscheidbar auch ohne Farbe (Form + Zahl). */
-export const KIND_COLORS: Record<Kind, string> = {
-  0: "#2BA6A0",
-  1: "#F0823C",
-  2: "#E0614A",
-  3: "#8A63D2",
-  4: "#3E9B5B",
-  5: "#D8B32A"
-};
+/** Umriss aller Symbole: dunkles Braun, wie Tusche im Comic. */
+const INK = "#3B2414";
 
 const KIND_LABEL: Record<Kind, string> = {
-  0: "Kreis",
-  1: "Dreieck",
-  2: "Quadrat",
-  3: "Raute",
-  4: "Sechseck",
-  5: "Stern"
+  0: "Zitrone",
+  1: "Kirschen",
+  2: "Trauben",
+  3: "Melone",
+  4: "Glocke",
+  5: "Edelstein"
 };
 
-function shapePath(kind: Kind): ReactNode {
+/** Eigene, selbst gezeichnete Symbole (Obst und Automat), 48 × 48. */
+function symbol(kind: Kind): ReactNode {
+  const line = { stroke: INK, strokeWidth: 2.2, strokeLinejoin: "round" as const, strokeLinecap: "round" as const };
   switch (KINDS[kind]) {
-    case "circle":
-      return <circle cx="20" cy="20" r="12.5" />;
-    case "triangle":
-      return <path d="M20 6 34 31H6Z" />;
-    case "square":
-      return <rect x="8.5" y="8.5" width="23" height="23" rx="3" />;
-    case "diamond":
-      return <path d="M20 5 35 20 20 35 5 20Z" />;
-    case "hexagon":
-      return <path d="M20 6 32.1 13v14L20 34 7.9 27V13Z" />;
-    case "star":
-      return <path d="m20 5 4.4 9.3 10.1 1.3-7.4 7 1.9 10L20 27.8l-9 4.8 1.9-10-7.4-7 10.1-1.3Z" />;
+    case "lemon":
+      return (
+        <>
+          <path d="M8 26c0-9 8-15 16-15s16 6 16 15-8 13-16 13S8 35 8 26Z" fill="#FFD43B" {...line} />
+          <path d="M6 26c1-1.5 2-2 3-2M42 26c-1-1.5-2-2-3-2" {...line} fill="none" />
+          <path d="M15 21c2-3 5-4 8-4" stroke="#FFF3B0" strokeWidth="3" strokeLinecap="round" fill="none" />
+          <path d="M24 11c0-3 2-5 5-5-1 3-3 4-5 5Z" fill="#5DBB46" {...line} />
+        </>
+      );
+    case "cherry":
+      return (
+        <>
+          <path d="M17 30c2-10 6-18 15-23M31 30c-1-9 0-16 1-23" fill="none" {...line} />
+          <path d="M32 7c4-2 9-1 11 2-4 2-8 1-11-2Z" fill="#5DBB46" {...line} />
+          <circle cx="16" cy="34" r="8.5" fill="#E8333F" {...line} />
+          <circle cx="32" cy="34" r="8.5" fill="#E8333F" {...line} />
+          <path d="M12 31c1-2 2-3 4-3M28 31c1-2 2-3 4-3" stroke="#FF9AA0" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+        </>
+      );
+    case "grape":
+      return (
+        <>
+          <path d="M24 10c0-3 1-5 3-6M24 10c4-4 10-4 13-1-4 3-9 3-13 1Z" fill="#5DBB46" {...line} />
+          {[
+            [17, 16], [24, 15], [31, 16], [20, 23], [28, 23], [24, 30], [16, 29], [32, 29], [24, 37]
+          ].map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="5.2" fill="#8E4FD8" {...line} />
+          ))}
+          <path d="M14 14c1-1 2-1.5 3-1.5" stroke="#D2B0FF" strokeWidth="2" strokeLinecap="round" fill="none" />
+        </>
+      );
+    case "melon":
+      return (
+        <>
+          <path d="M5 17h38c0 12-8 22-19 22S5 29 5 17Z" fill="#3FA34D" {...line} />
+          <path d="M9 17h30c0 9-6 17-15 17S9 26 9 17Z" fill="#FF5D6C" />
+          <path d="M9 17h30" {...line} fill="none" />
+          {[[16, 22], [22, 27], [28, 22], [24, 21], [19, 29], [30, 28]].map(([x, y], i) => (
+            <ellipse key={i} cx={x} cy={y} rx="1.2" ry="2" fill={INK} />
+          ))}
+        </>
+      );
+    case "bell":
+      return (
+        <>
+          <path d="M24 7c-8 0-12 7-12 15v8l-4 5h32l-4-5v-8c0-8-4-15-12-15Z" fill="#FFB81C" {...line} />
+          <circle cx="24" cy="39" r="4" fill="#FFB81C" {...line} />
+          <path d="M18 14c1.5-2 3-3 5-3" stroke="#FFE7A3" strokeWidth="3" strokeLinecap="round" fill="none" />
+          <circle cx="24" cy="6" r="2" fill="#FFB81C" {...line} />
+        </>
+      );
+    case "gem":
+      return (
+        <>
+          <path d="M14 9h20l8 11-18 21L6 20Z" fill="#29B6F6" {...line} />
+          <path d="M6 20h36M14 9l5 11 5-11 5 11 5-11M19 20l5 21 5-21" fill="none" {...line} strokeWidth="1.6" />
+          <path d="M15 12l-4 6" stroke="#C9F0FF" strokeWidth="2.6" strokeLinecap="round" />
+        </>
+      );
   }
 }
 
-export function Tile({ kind, size = "md" }: { kind: Kind; size?: "sm" | "md" }) {
+export function Tile({ kind, size = "md" }: { kind: Kind; size?: "sm" | "md" | "lg" }) {
   return (
-    <span className={`tile tile-${size}`} style={{ ["--tile" as string]: KIND_COLORS[kind] }} aria-label={`${KIND_LABEL[kind]}, ${kindValue(kind)} Punkte`} role="img">
-      <svg viewBox="0 0 40 40" aria-hidden="true">
-        <g fill="currentColor">{shapePath(kind)}</g>
+    <span className={`tile tile-${size}`} aria-label={`${KIND_LABEL[kind]}, ${kindValue(kind)} Punkte`} role="img">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        {symbol(kind)}
       </svg>
       <span className="tile-value">{kindValue(kind)}</span>
     </span>
   );
 }
 
-const ARROW: Record<Side, string> = { top: "↓", bottom: "↑", left: "→", right: "←" };
+const ARROW: Record<Side, string> = { top: "▼", bottom: "▲", left: "▶", right: "◀" };
+/** Beschriftung der Einschubstellen: Spalten A–E oben und unten, Reihen 1–5 links und rechts. */
+function slotLabel(side: Side, index: number) {
+  return side === "top" || side === "bottom" ? "ABCDE"[index]! : String(index + 1);
+}
 
 function sameMove(a: ShiftMove | null, b: ShiftMove) {
   return a !== null && a.side === b.side && a.index === b.index;
@@ -87,7 +133,10 @@ export function Board({ game }: { game: TableController }) {
           game.choose(move);
         }}
       >
-        {ARROW[side]}
+        <span className="slot-label">{slotLabel(side, index)}</span>
+        <span className="slot-arrow" aria-hidden="true">
+          {ARROW[side]}
+        </span>
       </button>
     );
   };
@@ -125,6 +174,27 @@ export function Board({ game }: { game: TableController }) {
         </div>
         {[0, 1, 2, 3, 4].map((i) => arrow("right", i))}
         {[0, 1, 2, 3, 4].map((i) => arrow("bottom", i))}
+      </div>
+      <div className="display" data-testid="next">
+        <div className="display-slot">
+          <span className="display-caption">Nächster</span>
+          <Tile kind={state.next} size="lg" />
+        </div>
+        <div className="display-score" aria-label={`Punkte ${state.scores[0]} zu ${state.scores[1]}, Ziel ${state.options.target}`}>
+          <span className={`led seat-0 ${state.turn === 0 && snap.phase !== "over" ? "on" : ""}`}>
+            <span className="turn" aria-hidden="true">◀</span>
+            {String(state.scores[0]).padStart(3, "0")}
+          </span>
+          <span className="display-target">Ziel {state.options.target}</span>
+          <span className={`led seat-1 ${state.turn === 1 && snap.phase !== "over" ? "on" : ""}`}>
+            {String(state.scores[1]).padStart(3, "0")}
+            <span className="turn" aria-hidden="true">▶</span>
+          </span>
+        </div>
+        <div className="display-slot">
+          <span className="display-caption">danach</span>
+          <Tile kind={state.after} size="sm" />
+        </div>
       </div>
       {hover && canAct && pointer.current !== "mouse" && (
         <button type="button" className="primary confirm" onClick={() => game.choose(hover)}>

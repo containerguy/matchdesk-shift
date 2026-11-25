@@ -12,8 +12,8 @@ import { otherSeat, type GameDefinition, type GameResult, type MoveCheck, type S
 export const SIZE = 5;
 export const CELLS = SIZE * SIZE;
 
-/** Steinformen, Wert = Index + 1. */
-export const KINDS = ["circle", "triangle", "square", "diamond", "hexagon", "star"] as const;
+/** Symbole, Wert = Index + 1. */
+export const KINDS = ["lemon", "cherry", "grape", "melon", "bell", "gem"] as const;
 export type Kind = 0 | 1 | 2 | 3 | 4 | 5;
 export const KIND_COUNT = KINDS.length;
 
