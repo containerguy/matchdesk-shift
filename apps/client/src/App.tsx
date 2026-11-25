@@ -515,7 +515,7 @@ function PlayArea({ game, seats, score, mySeat }: { game: TableController; seats
       : snap.phase === "animating"
         ? ""
         : myTurn
-          ? "Du bist dran: Pfeil am Rand wählen. Am Handy erst antippen, dann bestätigen."
+          ? "Du bist dran: Stein an den Rand führen und klicken. Am Handy an den Rand ziehen, dann bestätigen."
           : mySeat !== null
             ? `${snap.names[state.turn]} ist am Zug.`
             : "";

@@ -43,9 +43,9 @@ Einmalig vor dem ersten lokalen Lauf: `npx playwright install chromium`.
 
 ## Bedienung
 
-- Maus: auf einen Pfeil am Rand zeigen zeigt die Reihe (und dem Gegner die Vorschau), Klick schiebt.
-- Touch: Pfeil antippen zeigt die Vorschau, „… schieben“ bestätigt.
-- Tastatur: Tab auf einen Pfeil, Enter schiebt.
+- Maus: Der nächste Stein hängt am Zeiger und rastet an der nächsten Einschubstelle am Rand ein (die Reihe wird markiert, der Gegner sieht die Vorschau). Klick schiebt.
+- Touch: Stein mit dem Finger an den Rand ziehen; Loslassen zeigt nur die Vorschau. Dieselbe Stelle noch einmal antippen oder „… schieben“ schiebt.
+- Tastatur: Tab auf eine Einschubstelle, Enter schiebt.
 
 ## Betreiben
 

@@ -52,12 +52,15 @@ export async function settled(page: Page, after: number, timeout = 20_000) {
   await expect.poll(async () => (await moveCount(page)) > after && (await board(page).getAttribute("data-phase")) !== "animating", { timeout }).toBe(true);
 }
 
+/** Einschubstellen, an denen gerade geschoben werden darf. */
+export const freeSlots = (page: Page) => page.locator('.arrow:not([disabled]):not([aria-disabled="true"])');
+
 /**
- * Ein Zug über die Oberfläche: freien Pfeil wählen und schieben.
- * Maus: klicken. Touch: Pfeil antippen (Vorschau), dann „… schieben“ bestätigen.
+ * Ein Zug über die Oberfläche: freie Einschubstelle wählen und schieben.
+ * Maus: hinzeigen (der Stein rastet ein) und klicken. Touch: antippen (Vorschau), dann „… schieben“ bestätigen.
  */
 export async function pushOnce(page: Page, options: { random?: () => number; touch?: boolean; pick?: string; wait?: boolean } = {}) {
-  const enabled = page.locator(".arrow:not([disabled])");
+  const enabled = freeSlots(page);
   await expect(enabled.first()).toBeVisible();
   const count = await enabled.count();
   const arrow = options.pick ? page.locator(`.arrow[data-move="${options.pick}"]`) : enabled.nth(Math.floor((options.random?.() ?? 0) * count));
@@ -70,6 +73,25 @@ export async function pushOnce(page: Page, options: { random?: () => number; tou
     await arrow.click();
   }
   if (options.wait !== false) await settled(page, before);
+}
+
+/** Mittelpunkt einer Zelle (Reihe, Spalte von 0) in Seitenkoordinaten. */
+export async function cellCenter(page: Page, row: number, col: number) {
+  const box = (await page.locator(".grid .cell").nth(row * 5 + col).boundingBox())!;
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
+
+/** Mit dem Finger ziehen (echte Touch-Ereignisse über das DevTools-Protokoll). */
+export async function touchDrag(page: Page, from: { x: number; y: number }, to: { x: number; y: number }, steps = 8) {
+  const cdp = await page.context().newCDPSession(page);
+  const point = (p: { x: number; y: number }) => [{ x: Math.round(p.x), y: Math.round(p.y), id: 1 }];
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: point(from) });
+  for (let i = 1; i <= steps; i++) {
+    const p = { x: from.x + ((to.x - from.x) * i) / steps, y: from.y + ((to.y - from.y) * i) / steps };
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: point(p) });
+  }
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await cdp.detach();
 }
 
 /** Einfacher fester Zufall, damit Testläufe wiederholbar sind. */
