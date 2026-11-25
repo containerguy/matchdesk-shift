@@ -1,7 +1,7 @@
 import type { BotLevel } from "@dreierschub/shift";
 import type { Seat } from "@dreierschub/core";
 import type { TableView as TableInfo } from "@dreierschub/protocol";
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import type { Snapshot, TableController } from "./controller";
 import { HotseatGame } from "./hotseat";
 import { NetClient, type ChatLine } from "./net";
@@ -534,11 +534,65 @@ function PlayArea({ game, seats, score, mySeat }: { game: TableController; seats
         </div>
         <PlayerCard snap={snap} seat={1} info={seats[1]} me={mySeat === 1} />
       </div>
-      <Board game={game} />
+      <div className="board-stage">
+        <Board game={game} />
+        {state.winner !== null && snap.phase === "over" && (
+          <Celebration
+            key={state.moves}
+            winnerName={snap.names[state.winner]}
+            result={mySeat === null ? "neutral" : state.winner === mySeat ? "won" : "lost"}
+          />
+        )}
+      </div>
       <p className="hint" aria-live="polite">
         {hint}
       </p>
     </>
+  );
+}
+
+/** Konfetti in den Farben der Symbole: Zitrone, Kirsche, Traube, Melone, Glocke, Edelstein. */
+const CONFETTI_COLORS = ["#FFD43B", "#E8333F", "#8E4FD8", "#3FA34D", "#FFB81C", "#29B6F6", "#FF6B3D"];
+
+/** Abschluss einer Partie über dem Spielfeld: Konfetti und Pokal für den Sieger, ein ruhiger Hinweis für den Verlierer. */
+function Celebration({ result, winnerName }: { result: "won" | "lost" | "neutral"; winnerName: string }) {
+  const festive = result !== "lost";
+  // Fester Pseudozufall je Stück, damit sich das Konfetti bei jedem Neuzeichnen gleich verhält
+  const spread = (i: number, salt: number) => ((Math.sin(i * 12.9898 + salt * 78.233) * 43758.5453) % 1 + 1) % 1;
+  return (
+    <div className={`celebration ${result}`} data-result={result} role="status">
+      {festive && (
+        <div className="confetti" aria-hidden="true">
+          {Array.from({ length: 70 }, (_, i) => (
+            <i
+              key={i}
+              className={i % 3 === 0 ? "round" : ""}
+              style={
+                {
+                  left: `${spread(i, 1) * 100}%`,
+                  background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+                  "--drift": `${(spread(i, 2) - 0.5) * 160}px`,
+                  "--turns": `${(spread(i, 3) - 0.5) * 6}turn`,
+                  animationDelay: `${spread(i, 4) * 0.9}s`,
+                  animationDuration: `${2.2 + spread(i, 5) * 1.6}s`,
+                  width: `${8 + spread(i, 6) * 6}px`,
+                  height: `${i % 3 === 0 ? 8 + spread(i, 6) * 6 : 12 + spread(i, 7) * 8}px`
+                } as CSSProperties
+              }
+            />
+          ))}
+        </div>
+      )}
+      <div className="celebration-banner">
+        {festive && (
+          <span className="trophy" aria-hidden="true">
+            🏆
+          </span>
+        )}
+        <strong>{result === "won" ? "Gewonnen!" : result === "lost" ? "Verloren" : `${winnerName} gewinnt!`}</strong>
+        {result === "lost" && <span className="lost-note">{winnerName} gewinnt diese Partie.</span>}
+      </div>
+    </div>
   );
 }
 
