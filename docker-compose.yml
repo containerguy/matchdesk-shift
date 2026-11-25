@@ -4,6 +4,16 @@ services:
     image: ghcr.io/containerguy/matchdesk-shift:latest
     build: .
     restart: unless-stopped
+    # Grenzen, damit das Spiel den Host nicht ausbremst (gemessen: ~90 MB, <20 % eines Kerns, ~55 Prozesse/Threads)
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 1.5
+    pids_limit: 256
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     ports:
       - "3000:3000"
     environment:
