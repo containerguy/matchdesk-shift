@@ -7,7 +7,7 @@ import { HotseatGame } from "./hotseat";
 import { NetClient, type ChatLine } from "./net";
 import { OnlineTable } from "./online";
 import { BOT_LEVELS, SoloGame } from "./solo";
-import { Board, Tile } from "./Board";
+import { Board } from "./Board";
 
 /** Einbett-Modus (z. B. in Matchdesk): `?embed=1`, meist mit Platz-Link `?seat=…`. */
 const params = new URL(location.href).searchParams;
@@ -531,15 +531,8 @@ function PlayArea({ game, seats, score, mySeat }: { game: TableController; seats
           ) : (
             <span className="small muted">Solo</span>
           )}
-          <span className="small muted">Ziel {state.options.target}</span>
         </div>
         <PlayerCard snap={snap} seat={1} info={seats[1]} me={mySeat === 1} />
-      </div>
-      <div className="next-row" data-testid="next">
-        <span className="muted small">Nächster Stein</span>
-        <Tile kind={state.next} />
-        <span className="muted small">danach</span>
-        <Tile kind={state.after} size="sm" />
       </div>
       <Board game={game} />
       <p className="hint" aria-live="polite">
@@ -558,7 +551,7 @@ function PlayerCard({ snap, seat, info, me }: { snap: Snapshot; seat: Seat; info
   const points = state.scores[seat];
   return (
     <div className={`player ${seat === 1 ? "right" : ""} ${active || won ? "active" : ""}`} data-seat={seat}>
-      <div className="avatar" style={{ background: seat === 0 ? "#2BA6A0" : "#8A63D2", color: "#FFFFFF" }}>
+      <div className="avatar" style={{ background: seat === 0 ? "#FF8A1F" : "#2D9CDB", color: "#FFFFFF" }}>
         {name.slice(0, 1).toUpperCase()}
       </div>
       <div className="player-body">

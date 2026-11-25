@@ -37,7 +37,7 @@ test("Online-Partie zwischen Desktop und Smartphone: Einladung, Vorschau, Züge,
   await settled(rene.page, 1);
   expect(await boardKinds(mia.page)).toBe(await boardKinds(rene.page));
   expect(await gameLog(mia.page).allInnerTexts()).toEqual(await gameLog(rene.page).allInnerTexts());
-  await expect(gameLog(rene.page).filter({ hasText: "Mia: Spalte 1 von oben" })).toHaveCount(1);
+  await expect(gameLog(rene.page).filter({ hasText: "Mia: Spalte A von oben" })).toHaveCount(1);
 
   // Chat am Tisch
   await mia.page.getByPlaceholder(/Nachricht/).last().fill("Gut geschoben!");

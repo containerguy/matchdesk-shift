@@ -30,7 +30,7 @@ type Listener = () => void;
 const SIDE_TEXT: Record<ShiftMove["side"], string> = { top: "von oben", bottom: "von unten", left: "von links", right: "von rechts" };
 
 export function moveText(move: ShiftMove) {
-  const line = move.side === "top" || move.side === "bottom" ? `Spalte ${move.index + 1}` : `Reihe ${move.index + 1}`;
+  const line = move.side === "top" || move.side === "bottom" ? `Spalte ${"ABCDE"[move.index]}` : `Reihe ${move.index + 1}`;
   return `${line} ${SIDE_TEXT[move.side]}`;
 }
 

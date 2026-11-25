@@ -37,7 +37,7 @@ test("Am Smartphone gegen den Computer, danach zu zweit an einem Gerät", async 
   await page.locator('.arrow[data-move="bottom-4"]').tap();
   await expect(page.locator(".cell.hover")).toHaveCount(5);
   expect(await moveCount(page)).toBe(0);
-  await page.getByRole("button", { name: "Spalte 5 von unten schieben" }).tap();
+  await page.getByRole("button", { name: "Spalte E von unten schieben" }).tap();
 
   // Der Computer antwortet sichtbar: erst Vorschau, dann sein Zug
   await expect(page.locator(".arrow.active")).toHaveCount(1, { timeout: 10_000 });
