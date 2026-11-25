@@ -1,0 +1,13 @@
+services:
+  shift:
+    # Fertiges Image von GitHub (Workflow „Image“); ohne Zugriff darauf: `docker compose build`
+    image: ghcr.io/containerguy/matchdesk-shift:latest
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Für die Einbindung in Matchdesk (siehe README): Unterpfad hinter dem Proxy und Schlüssel
+      BASE_PATH: ${BASE_PATH:-}
+      INTEGRATION_API_KEY: ${INTEGRATION_API_KEY:-}
+      INTEGRATION_WEBHOOK_SECRET: ${INTEGRATION_WEBHOOK_SECRET:-}

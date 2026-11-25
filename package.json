@@ -1,0 +1,26 @@
+{
+  "name": "matchdesk-shift",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "games/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @dreierschub/server & npm run dev -w @dreierschub/client",
+    "dev:client": "npm run dev -w @dreierschub/client",
+    "dev:server": "npm run dev -w @dreierschub/server",
+    "build": "npm run build -w @dreierschub/client",
+    "start": "npm run start -w @dreierschub/server",
+    "test": "vitest run",
+    "typecheck": "tsc -b",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  }
+}
